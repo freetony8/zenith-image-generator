@@ -20,7 +20,7 @@ batch generation, and one-click deployment to Cloudflare Pages.
 
 ## Features
 
-- **Multiple AI Providers** - Gitee AI, HuggingFace Spaces
+- **Multiple AI Providers** - Gitee AI, HuggingFace Spaces, ModelScope
 - **Dark Mode UI** - Gradio-style with frosted glass effects
 - **Flexible Sizing** - Multiple aspect ratios (1:1, 16:9, 9:16, 4:3, etc.)
 - **4x Upscaling** - RealESRGAN integration
@@ -36,9 +36,11 @@ batch generation, and one-click deployment to Cloudflare Pages.
 
 ### One-Click Deploy
 
-[![Deploy to Cloudflare Pages](https://img.shields.io/badge/Deploy-Cloudflare%20Pages-F38020?style=for-the-badge&logo=cloudflare)](https://dash.cloudflare.com)
+[![Deploy to Cloudflare](https://img.shields.io/badge/Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://dash.cloudflare.com)
+[![Deploy to Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/new)
+[![Deploy to Netlify](https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white)](https://app.netlify.com/start)
 
-> Connect your GitHub repo → Set root to `apps/web` → Deploy!
+> See [Deployment Guide](./docs/DEPLOYMENT.md) for detailed instructions.
 
 ### Local Development
 
@@ -72,7 +74,7 @@ Open `http://localhost:5173`
 |-------|------|
 | Frontend | React 19, Vite, Tailwind CSS, shadcn/ui |
 | Backend | Hono (TypeScript) |
-| Deploy | Cloudflare Pages + Functions |
+| Deploy | Cloudflare Pages, Vercel, Netlify |
 
 ## License
 

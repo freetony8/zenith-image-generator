@@ -232,6 +232,131 @@ Upscale an image 4x using RealESRGAN.
 }
 ```
 
+## `GET /api/llm-providers`
+
+Get all available LLM providers for prompt optimization.
+
+**Response:**
+
+```json
+{
+  "providers": [
+    {
+      "id": "pollinations",
+      "name": "Pollinations AI",
+      "needsAuth": false,
+      "models": [
+        { "id": "openai", "name": "OpenAI", "description": "Fast general-purpose model" }
+      ]
+    },
+    {
+      "id": "huggingface-llm",
+      "name": "HuggingFace",
+      "needsAuth": false,
+      "authHeader": "X-HF-Token",
+      "models": [
+        { "id": "Qwen/Qwen2.5-72B-Instruct", "name": "Qwen 2.5 72B", "description": "Powerful instruction-following model" }
+      ]
+    },
+    {
+      "id": "gitee-llm",
+      "name": "Gitee AI",
+      "needsAuth": true,
+      "authHeader": "X-API-Key",
+      "models": [
+        { "id": "DeepSeek-V3.2", "name": "DeepSeek V3.2", "description": "Latest DeepSeek model" }
+      ]
+    },
+    {
+      "id": "modelscope-llm",
+      "name": "ModelScope",
+      "needsAuth": true,
+      "authHeader": "X-MS-Token",
+      "models": [
+        { "id": "deepseek-ai/DeepSeek-V3.2", "name": "DeepSeek V3.2", "description": "Latest DeepSeek model on ModelScope" }
+      ]
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek Official",
+      "needsAuth": true,
+      "authHeader": "X-DeepSeek-Token",
+      "models": [
+        { "id": "deepseek-chat", "name": "DeepSeek Chat", "description": "General chat model" }
+      ]
+    }
+  ]
+}
+```
+
+## `POST /api/optimize`
+
+Optimize an image prompt using LLM to enhance its quality for image generation.
+
+**Headers:**
+
+```
+Content-Type: application/json
+X-HF-Token: your-huggingface-token      # For huggingface-llm provider (optional)
+X-API-Key: your-gitee-api-key           # For gitee-llm provider
+X-MS-Token: your-modelscope-token       # For modelscope-llm provider
+X-DeepSeek-Token: your-deepseek-token   # For deepseek provider
+```
+
+**Request Body:**
+
+```json
+{
+  "prompt": "a cat",
+  "provider": "pollinations",
+  "lang": "en",
+  "model": "openai",
+  "systemPrompt": "You are an expert AI image prompt engineer..."
+}
+```
+
+**Parameters:**
+
+| Field          | Type   | Required | Default        | Description                                      |
+| -------------- | ------ | -------- | -------------- | ------------------------------------------------ |
+| `prompt`       | string | Yes      | -              | The prompt to optimize (max 4000 chars)          |
+| `provider`     | string | No       | `pollinations` | LLM provider: `pollinations`, `huggingface-llm`, `gitee-llm`, `modelscope-llm`, `deepseek` |
+| `lang`         | string | No       | `en`           | Output language: `en` or `zh`                    |
+| `model`        | string | No       | Provider default | Model ID to use                                |
+| `systemPrompt` | string | No       | Built-in       | Custom system prompt for optimization            |
+
+**Response (Success):**
+
+```json
+{
+  "optimized": "A fluffy orange tabby cat with emerald green eyes, sitting gracefully on a weathered wooden windowsill, soft golden hour sunlight streaming through vintage lace curtains, creating warm bokeh in the background, photorealistic, 8K resolution, shallow depth of field",
+  "provider": "pollinations",
+  "model": "openai"
+}
+```
+
+**Response (Error):**
+
+```json
+{
+  "error": "API token is required for Gitee AI",
+  "code": "AUTH_REQUIRED",
+  "details": {
+    "provider": "gitee-llm"
+  }
+}
+```
+
+**LLM Providers:**
+
+| Provider | Auth Header | Default Model | Free |
+|----------|-------------|---------------|------|
+| Pollinations | None | `openai` | Yes |
+| HuggingFace | `X-HF-Token` (optional) | `Qwen/Qwen2.5-72B-Instruct` | Yes (rate limited without token) |
+| Gitee AI | `X-API-Key` | `DeepSeek-V3.2` | No (uses existing Gitee token) |
+| ModelScope | `X-MS-Token` | `deepseek-ai/DeepSeek-V3.2` | No (uses existing ModelScope token) |
+| DeepSeek Official | `X-DeepSeek-Token` | `deepseek-chat` | No |
+
 ## Usage Examples
 
 ### cURL
@@ -257,11 +382,51 @@ curl -X POST https://your-project.pages.dev/api/generate \
     "model": "flux-schnell",
     "prompt": "a cute cat"
   }'
+
+# Prompt Optimization (Free - Pollinations)
+curl -X POST https://your-project.pages.dev/api/optimize \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "a cat",
+    "provider": "pollinations",
+    "lang": "en"
+  }'
+
+# Prompt Optimization (HuggingFace - free with optional token)
+curl -X POST https://your-project.pages.dev/api/optimize \
+  -H "Content-Type: application/json" \
+  -H "X-HF-Token: your-hf-token" \
+  -d '{
+    "prompt": "a cat",
+    "provider": "huggingface-llm",
+    "lang": "en"
+  }'
+
+# Prompt Optimization (Gitee AI)
+curl -X POST https://your-project.pages.dev/api/optimize \
+  -H "Content-Type: application/json" \
+  -H "X-API-Key: your-gitee-api-key" \
+  -d '{
+    "prompt": "a cat",
+    "provider": "gitee-llm",
+    "lang": "en"
+  }'
+
+# Prompt Optimization (ModelScope)
+curl -X POST https://your-project.pages.dev/api/optimize \
+  -H "Content-Type: application/json" \
+  -H "X-MS-Token: your-modelscope-token" \
+  -d '{
+    "prompt": "a cat",
+    "provider": "modelscope-llm",
+    "lang": "zh"
+  }'
 ```
 
 ### JavaScript (fetch)
 
 ```javascript
+// Image Generation
 const response = await fetch('https://your-project.pages.dev/api/generate', {
   method: 'POST',
   headers: {
@@ -278,6 +443,40 @@ const response = await fetch('https://your-project.pages.dev/api/generate', {
 
 const data = await response.json();
 console.log(data.imageDetails.url);
+
+// Prompt Optimization (Free)
+const optimizeResponse = await fetch('https://your-project.pages.dev/api/optimize', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    prompt: 'a cat sitting on a window',
+    provider: 'pollinations',
+    lang: 'en',
+  }),
+});
+
+const optimized = await optimizeResponse.json();
+console.log(optimized.optimized);
+// Output: "A fluffy orange tabby cat with emerald green eyes, sitting gracefully on a weathered wooden windowsill..."
+
+// Prompt Optimization with Gitee AI
+const giteeOptimize = await fetch('https://your-project.pages.dev/api/optimize', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-API-Key': 'your-gitee-api-key',
+  },
+  body: JSON.stringify({
+    prompt: '一只猫',
+    provider: 'gitee-llm',
+    lang: 'zh',
+  }),
+});
+
+const giteeResult = await giteeOptimize.json();
+console.log(giteeResult.optimized);
 ```
 
 ### Python
@@ -285,6 +484,7 @@ console.log(data.imageDetails.url);
 ```python
 import requests
 
+# Image Generation
 response = requests.post(
     'https://your-project.pages.dev/api/generate',
     headers={
@@ -301,6 +501,38 @@ response = requests.post(
 
 data = response.json()
 print(data['imageDetails']['url'])
+
+# Prompt Optimization (Free - Pollinations)
+optimize_response = requests.post(
+    'https://your-project.pages.dev/api/optimize',
+    headers={
+        'Content-Type': 'application/json',
+    },
+    json={
+        'prompt': 'a cat',
+        'provider': 'pollinations',
+        'lang': 'en',
+    }
+)
+
+result = optimize_response.json()
+print(result['optimized'])
+
+# Prompt Optimization with Gitee AI
+gitee_optimize = requests.post(
+    'https://your-project.pages.dev/api/optimize',
+    headers={
+        'Content-Type': 'application/json',
+        'X-API-Key': 'your-gitee-api-key',
+    },
+    json={
+        'prompt': '一只猫',
+        'provider': 'gitee-llm',
+        'lang': 'zh',
+    }
+)
+
+print(gitee_optimize.json()['optimized'])
 ```
 
 ## Supported Aspect Ratios

@@ -28,10 +28,10 @@ import {
   getDefaultModel,
   getEffectiveSystemPrompt,
   getModelsByProvider,
-  loadLLMSettings,
-  loadSettings,
   type LLMProviderType,
   type LLMSettings,
+  loadLLMSettings,
+  loadSettings,
   type ProviderType,
   saveLLMSettings,
   saveSettings,
@@ -184,76 +184,82 @@ function FlowCanvas() {
   )
 
   // Optimize prompt handler
-  const handleOptimize = useCallback(async (prompt: string): Promise<string | null> => {
-    if (!prompt.trim() || isOptimizing) return null
+  const handleOptimize = useCallback(
+    async (prompt: string): Promise<string | null> => {
+      if (!prompt.trim() || isOptimizing) return null
 
-    setIsOptimizing(true)
-    try {
-      // Get token for LLM provider
-      let token: string | undefined
-      switch (llmSettings.llmProvider) {
-        case 'gitee-llm':
-          token = await decryptTokenFromStore('gitee')
-          break
-        case 'modelscope-llm':
-          token = await decryptTokenFromStore('modelscope')
-          break
-        case 'huggingface-llm':
-          token = await decryptTokenFromStore('huggingface')
-          break
-        case 'deepseek':
-          token = await decryptTokenFromStore('deepseek')
-          break
+      setIsOptimizing(true)
+      try {
+        // Get token for LLM provider
+        let token: string | undefined
+        switch (llmSettings.llmProvider) {
+          case 'gitee-llm':
+            token = await decryptTokenFromStore('gitee')
+            break
+          case 'modelscope-llm':
+            token = await decryptTokenFromStore('modelscope')
+            break
+          case 'huggingface-llm':
+            token = await decryptTokenFromStore('huggingface')
+            break
+          case 'deepseek':
+            token = await decryptTokenFromStore('deepseek')
+            break
+        }
+
+        const result = await optimizePrompt(
+          {
+            prompt,
+            provider: llmSettings.llmProvider,
+            model: llmSettings.llmModel,
+            lang: 'en',
+            systemPrompt: getEffectiveSystemPrompt(llmSettings.customSystemPrompt),
+          },
+          token
+        )
+
+        if (result.success) {
+          toast.success(t('prompt.optimizeSuccess'))
+          return result.data.optimized
+        }
+        toast.error(result.error)
+        return null
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Optimization failed'
+        toast.error(msg)
+        return null
+      } finally {
+        setIsOptimizing(false)
       }
-
-      const result = await optimizePrompt(
-        {
-          prompt,
-          provider: llmSettings.llmProvider,
-          model: llmSettings.llmModel,
-          lang: 'en',
-          systemPrompt: getEffectiveSystemPrompt(llmSettings.customSystemPrompt),
-        },
-        token
-      )
-
-      if (result.success) {
-        toast.success(t('prompt.optimizeSuccess'))
-        return result.data.optimized
-      }
-      toast.error(result.error)
-      return null
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Optimization failed'
-      toast.error(msg)
-      return null
-    } finally {
-      setIsOptimizing(false)
-    }
-  }, [isOptimizing, t, llmSettings])
+    },
+    [isOptimizing, t, llmSettings]
+  )
 
   // Translate prompt handler
-  const handleTranslate = useCallback(async (prompt: string): Promise<string | null> => {
-    if (!prompt.trim() || isTranslating) return null
+  const handleTranslate = useCallback(
+    async (prompt: string): Promise<string | null> => {
+      if (!prompt.trim() || isTranslating) return null
 
-    setIsTranslating(true)
-    try {
-      const result = await translatePrompt(prompt)
+      setIsTranslating(true)
+      try {
+        const result = await translatePrompt(prompt)
 
-      if (result.success) {
-        toast.success(t('prompt.translateSuccess'))
-        return result.data.translated
+        if (result.success) {
+          toast.success(t('prompt.translateSuccess'))
+          return result.data.translated
+        }
+        toast.error(result.error)
+        return null
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Translation failed'
+        toast.error(msg)
+        return null
+      } finally {
+        setIsTranslating(false)
       }
-      toast.error(result.error)
-      return null
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Translation failed'
-      toast.error(msg)
-      return null
-    } finally {
-      setIsTranslating(false)
-    }
-  }, [isTranslating, t])
+    },
+    [isTranslating, t]
+  )
 
   // Handle node drag - group dragging for config nodes (real-time)
   const onNodeDrag = useCallback(
@@ -286,26 +292,23 @@ function FlowCanvas() {
   )
 
   // Handle node right click - show context menu
-  const onNodeContextMenu = useCallback(
-    (event: React.MouseEvent, node: Node) => {
-      // Prevent default context menu
-      event.preventDefault()
+  const onNodeContextMenu = useCallback((event: React.MouseEvent, node: Node) => {
+    // Prevent default context menu
+    event.preventDefault()
 
-      // Don't show context menu for preview nodes
-      if (node.data.isPreview) return
+    // Don't show context menu for preview nodes
+    if (node.data.isPreview) return
 
-      // Only show for config and image nodes
-      if (node.type !== 'configNode' && node.type !== 'imageNode') return
+    // Only show for config and image nodes
+    if (node.type !== 'configNode' && node.type !== 'imageNode') return
 
-      setContextMenu({
-        nodeId: node.id,
-        nodeType: node.type as 'configNode' | 'imageNode',
-        x: event.clientX,
-        y: event.clientY,
-      })
-    },
-    []
-  )
+    setContextMenu({
+      nodeId: node.id,
+      nodeType: node.type as 'configNode' | 'imageNode',
+      x: event.clientX,
+      y: event.clientY,
+    })
+  }, [])
 
   // Close context menu
   const closeContextMenu = useCallback(() => {

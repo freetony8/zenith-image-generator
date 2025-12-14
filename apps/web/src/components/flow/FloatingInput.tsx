@@ -1,4 +1,14 @@
-import { GitBranch, Globe, ImageIcon, Loader2, RefreshCw, Sparkles, Wand2, X, Zap } from 'lucide-react'
+import {
+  GitBranch,
+  Globe,
+  ImageIcon,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  Wand2,
+  X,
+  Zap,
+} from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { ASPECT_RATIOS } from '@/lib/constants'

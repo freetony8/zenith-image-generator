@@ -50,9 +50,7 @@ export function NodeContextMenu({
 
   const handleDelete = () => {
     const message =
-      menu.nodeType === 'configNode'
-        ? t('flow.deleteConfigConfirm')
-        : t('flow.deleteImageConfirm')
+      menu.nodeType === 'configNode' ? t('flow.deleteConfigConfirm') : t('flow.deleteImageConfirm')
 
     if (confirm(message)) {
       if (menu.nodeType === 'configNode') {

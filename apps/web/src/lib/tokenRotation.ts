@@ -99,10 +99,7 @@ export function markTokenExhausted(provider: TokenProvider, token: string): void
  * Get the next available (non-exhausted) token for a provider
  * Returns null if all tokens are exhausted or no tokens configured
  */
-export function getNextAvailableToken(
-  provider: TokenProvider,
-  allTokens: string[]
-): string | null {
+export function getNextAvailableToken(provider: TokenProvider, allTokens: string[]): string | null {
   if (allTokens.length === 0) return null
 
   const store = getTokenStatusStore()

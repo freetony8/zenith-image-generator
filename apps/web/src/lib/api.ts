@@ -19,11 +19,7 @@ import type {
 } from '@z-image/shared'
 import { LLM_PROVIDER_CONFIGS } from '@z-image/shared'
 import { PROVIDER_CONFIGS, type ProviderType } from './constants'
-import {
-  isQuotaError,
-  markTokenExhausted,
-  getNextAvailableToken,
-} from './tokenRotation'
+import { getNextAvailableToken, isQuotaError, markTokenExhausted } from './tokenRotation'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -166,11 +162,7 @@ export async function generateImage(
   const providerConfig = PROVIDER_CONFIGS[provider]
 
   // Build token list: prefer tokens array, fallback to single token
-  const allTokens = tokens?.length
-    ? tokens
-    : token
-      ? [token]
-      : []
+  const allTokens = tokens?.length ? tokens : token ? [token] : []
 
   // No tokens and requires auth
   if (allTokens.length === 0 && providerConfig.requiresAuth) {
@@ -286,11 +278,7 @@ export async function upscaleImage(
   hfTokens?: string | string[]
 ): Promise<ApiResponse<UpscaleResponse>> {
   // Build token list
-  const allTokens = Array.isArray(hfTokens)
-    ? hfTokens
-    : hfTokens
-      ? [hfTokens]
-      : []
+  const allTokens = Array.isArray(hfTokens) ? hfTokens : hfTokens ? [hfTokens] : []
 
   // No tokens - try anonymous (HuggingFace allows anonymous)
   if (allTokens.length === 0) {
@@ -357,7 +345,9 @@ export interface OptimizeOptions {
 }
 
 /** Map LLM provider to token provider for token rotation */
-function getLLMTokenProvider(provider: LLMProviderType): 'gitee' | 'modelscope' | 'huggingface' | 'deepseek' | null {
+function getLLMTokenProvider(
+  provider: LLMProviderType
+): 'gitee' | 'modelscope' | 'huggingface' | 'deepseek' | null {
   switch (provider) {
     case 'gitee-llm':
       return 'gitee'
@@ -462,9 +452,7 @@ export async function optimizePrompt(
   // Token rotation loop
   let attempts = 0
   while (attempts < MAX_RETRY_ATTEMPTS) {
-    const nextToken = tokenProvider
-      ? getNextAvailableToken(tokenProvider, allTokens)
-      : allTokens[0]
+    const nextToken = tokenProvider ? getNextAvailableToken(tokenProvider, allTokens) : allTokens[0]
 
     // All tokens exhausted
     if (!nextToken) {

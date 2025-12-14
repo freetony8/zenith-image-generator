@@ -16,10 +16,10 @@ import {
   getDefaultModel,
   getEffectiveSystemPrompt,
   getModelsByProvider,
-  loadLLMSettings,
-  loadSettings,
   type LLMProviderType,
   type LLMSettings,
+  loadLLMSettings,
+  loadSettings,
   PROVIDER_CONFIGS,
   type ProviderType,
   saveLLMSettings,
@@ -165,7 +165,11 @@ export function useImageGenerator() {
 
     // Get HuggingFace tokens array for rotation
     const hfTokens = parseTokens(tokens.huggingface)
-    const result = await upscaleImage(imageDetails.url, 4, hfTokens.length > 0 ? hfTokens : undefined)
+    const result = await upscaleImage(
+      imageDetails.url,
+      4,
+      hfTokens.length > 0 ? hfTokens : undefined
+    )
 
     if (result.success && result.data.url) {
       setImageDetails((prev) => (prev ? { ...prev, url: result.data.url as string } : null))
@@ -232,7 +236,11 @@ export function useImageGenerator() {
       if (upscale8k && details.url.startsWith('http')) {
         addStatus('Upscaling to 8K...')
         const hfTokens = parseTokens(tokens.huggingface)
-        const upResult = await upscaleImage(details.url, 4, hfTokens.length > 0 ? hfTokens : undefined)
+        const upResult = await upscaleImage(
+          details.url,
+          4,
+          hfTokens.length > 0 ? hfTokens : undefined
+        )
 
         if (upResult.success && upResult.data.url) {
           details.url = upResult.data.url

@@ -1,3 +1,4 @@
+import { DEFAULT_OPTIMIZE_SYSTEM_PROMPT } from '@z-image/shared'
 import { RotateCcw, Sparkles } from 'lucide-react'
 import {
   Accordion,
@@ -22,7 +23,6 @@ import {
   type LLMProviderType,
   type LLMSettings,
 } from '@/lib/constants'
-import { DEFAULT_OPTIMIZE_SYSTEM_PROMPT } from '@z-image/shared'
 
 interface LLMSettingsAccordionProps {
   llmSettings: LLMSettings

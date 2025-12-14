@@ -35,11 +35,14 @@ export function ImageComparison({
   }, [])
 
   // Mouse events
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    isDragging.current = true
-    handleMove(e.clientX)
-  }, [handleMove])
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      isDragging.current = true
+      handleMove(e.clientX)
+    },
+    [handleMove]
+  )
 
   // Global mouse events (for drag outside container)
   useEffect(() => {
@@ -63,16 +66,22 @@ export function ImageComparison({
   }, [handleMove])
 
   // Touch events
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    isDragging.current = true
-    handleMove(e.touches[0].clientX)
-  }, [handleMove])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (isDragging.current) {
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      isDragging.current = true
       handleMove(e.touches[0].clientX)
-    }
-  }, [handleMove])
+    },
+    [handleMove]
+  )
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (isDragging.current) {
+        handleMove(e.touches[0].clientX)
+      }
+    },
+    [handleMove]
+  )
 
   const handleTouchEnd = useCallback(() => {
     isDragging.current = false
@@ -87,6 +96,12 @@ export function ImageComparison({
       ref={containerRef}
       className={`relative select-none overflow-hidden rounded-lg ${className}`}
       style={{ touchAction: 'none' }}
+      role="slider"
+      aria-valuenow={Math.round(position)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Image comparison slider"
+      tabIndex={0}
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -101,10 +116,7 @@ export function ImageComparison({
       />
 
       {/* Before image (top layer - clipped to show left portion) */}
-      <div
-        className="absolute inset-0"
-        style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}
-      >
+      <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - position}% 0 0)` }}>
         <img
           src={beforeImage}
           alt="Before"

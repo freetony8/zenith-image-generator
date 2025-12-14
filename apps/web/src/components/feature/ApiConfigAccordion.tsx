@@ -59,7 +59,9 @@ export function ApiConfigAccordion({
           <div className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
             <span>{t('apiConfig.title')}</span>
-            {isConfigured && <span className="text-xs text-green-500">● {t('apiConfig.ready')}</span>}
+            {isConfigured && (
+              <span className="text-xs text-green-500">● {t('apiConfig.ready')}</span>
+            )}
           </div>
         </AccordionTrigger>
         <AccordionContent>
@@ -120,9 +122,7 @@ export function ApiConfigAccordion({
                 className="mt-1 bg-zinc-950 border-zinc-800 text-zinc-100 placeholder:text-zinc-600"
               />
               {/* Token hint */}
-              <p className="mt-1 text-[10px] text-zinc-500">
-                {t('apiConfig.multiTokenHint')}
-              </p>
+              <p className="mt-1 text-[10px] text-zinc-500">{t('apiConfig.multiTokenHint')}</p>
             </div>
 
             {/* Token Stats */}

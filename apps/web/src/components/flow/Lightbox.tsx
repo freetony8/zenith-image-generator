@@ -48,6 +48,7 @@ export function Lightbox() {
   const imagesWithUrls = imageNodes.filter((n) => n.data.imageUrl || n.data.imageBlobId)
 
   // Reset state when image changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: lightboxImageId triggers reset even though not used inside
   useEffect(() => {
     setScale(1)
     setPosition({ x: 0, y: 0 })
@@ -173,7 +174,7 @@ export function Lightbox() {
       } else if (!result.success) {
         toast.error(result.error || t('image.upscaleFailed', 'Upscale failed'))
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error(t('image.upscaleFailed', 'Upscale failed'))
     } finally {
       setIsUpscaling(false)
@@ -220,21 +221,27 @@ export function Lightbox() {
   }, [])
 
   // Image drag for panning
-  const handleImageMouseDown = useCallback((e: React.MouseEvent) => {
-    if (scale > 1) {
-      isDraggingImage.current = true
-      lastMousePos.current = { x: e.clientX, y: e.clientY }
-    }
-  }, [scale])
+  const handleImageMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (scale > 1) {
+        isDraggingImage.current = true
+        lastMousePos.current = { x: e.clientX, y: e.clientY }
+      }
+    },
+    [scale]
+  )
 
-  const handleImageMouseMove = useCallback((e: React.MouseEvent) => {
-    if (isDraggingImage.current && scale > 1) {
-      const dx = e.clientX - lastMousePos.current.x
-      const dy = e.clientY - lastMousePos.current.y
-      lastMousePos.current = { x: e.clientX, y: e.clientY }
-      setPosition((p) => ({ x: p.x + dx, y: p.y + dy }))
-    }
-  }, [scale])
+  const handleImageMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDraggingImage.current && scale > 1) {
+        const dx = e.clientX - lastMousePos.current.x
+        const dy = e.clientY - lastMousePos.current.y
+        lastMousePos.current = { x: e.clientX, y: e.clientY }
+        setPosition((p) => ({ x: p.x + dx, y: p.y + dy }))
+      }
+    },
+    [scale]
+  )
 
   const handleImageMouseUp = useCallback(() => {
     isDraggingImage.current = false
@@ -274,7 +281,17 @@ export function Lightbox() {
 
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [lightboxImageId, isComparing, handleClose, handlePrev, handleNext, handleZoomIn, handleZoomOut, handleResetZoom, handleCancelComparison])
+  }, [
+    lightboxImageId,
+    isComparing,
+    handleClose,
+    handlePrev,
+    handleNext,
+    handleZoomIn,
+    handleZoomOut,
+    handleResetZoom,
+    handleCancelComparison,
+  ])
 
   if (!currentImage || !displayUrl) return null
 
@@ -363,6 +380,7 @@ export function Lightbox() {
                 onMouseUp={handleImageMouseUp}
                 onMouseLeave={handleImageMouseUp}
               >
+                {/* biome-ignore lint/a11y/useKeyWithClickEvents: keyboard events handled at container level */}
                 <img
                   src={displayUrl}
                   alt="Preview"
@@ -387,7 +405,9 @@ export function Lightbox() {
             >
               <div className="flex justify-between">
                 <span className="text-zinc-500">Size</span>
-                <span>{currentImage.data.width}×{currentImage.data.height}</span>
+                <span>
+                  {currentImage.data.width}×{currentImage.data.height}
+                </span>
               </div>
               {currentImage.data.seed && (
                 <div className="flex justify-between">
@@ -501,7 +521,11 @@ export function Lightbox() {
                     type="button"
                     onClick={handleUpscale}
                     disabled={isUpscaling}
-                    title={isUpscaling ? t('image.upscaling', 'Upscaling...') : t('image.upscale4x', '4x Upscale')}
+                    title={
+                      isUpscaling
+                        ? t('image.upscaling', 'Upscaling...')
+                        : t('image.upscale4x', '4x Upscale')
+                    }
                     className="flex items-center justify-center w-10 h-10 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all disabled:cursor-not-allowed"
                   >
                     {isUpscaling ? (

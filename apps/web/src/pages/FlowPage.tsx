@@ -222,77 +222,83 @@ function FlowCanvas() {
   }
 
   // Optimize prompt handler
-  const handleOptimize = useCallback(async (prompt: string): Promise<string | null> => {
-    if (!prompt.trim() || isOptimizing) return null
+  const handleOptimize = useCallback(
+    async (prompt: string): Promise<string | null> => {
+      if (!prompt.trim() || isOptimizing) return null
 
-    setIsOptimizing(true)
-    try {
-      const llmSettings = loadLLMSettings()
-      // Get token for LLM provider
-      let token: string | undefined
-      switch (llmSettings.llmProvider) {
-        case 'gitee-llm':
-          token = await decryptTokenFromStore('gitee')
-          break
-        case 'modelscope-llm':
-          token = await decryptTokenFromStore('modelscope')
-          break
-        case 'huggingface-llm':
-          token = await decryptTokenFromStore('huggingface')
-          break
-        case 'deepseek':
-          token = await decryptTokenFromStore('deepseek')
-          break
+      setIsOptimizing(true)
+      try {
+        const llmSettings = loadLLMSettings()
+        // Get token for LLM provider
+        let token: string | undefined
+        switch (llmSettings.llmProvider) {
+          case 'gitee-llm':
+            token = await decryptTokenFromStore('gitee')
+            break
+          case 'modelscope-llm':
+            token = await decryptTokenFromStore('modelscope')
+            break
+          case 'huggingface-llm':
+            token = await decryptTokenFromStore('huggingface')
+            break
+          case 'deepseek':
+            token = await decryptTokenFromStore('deepseek')
+            break
+        }
+
+        const result = await optimizePrompt(
+          {
+            prompt,
+            provider: llmSettings.llmProvider,
+            model: llmSettings.llmModel,
+            lang: 'en',
+            systemPrompt: getEffectiveSystemPrompt(llmSettings.customSystemPrompt),
+          },
+          token
+        )
+
+        if (result.success) {
+          toast.success('Prompt optimized!')
+          return result.data.optimized
+        }
+        toast.error(result.error)
+        return null
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Optimization failed'
+        toast.error(msg)
+        return null
+      } finally {
+        setIsOptimizing(false)
       }
-
-      const result = await optimizePrompt(
-        {
-          prompt,
-          provider: llmSettings.llmProvider,
-          model: llmSettings.llmModel,
-          lang: 'en',
-          systemPrompt: getEffectiveSystemPrompt(llmSettings.customSystemPrompt),
-        },
-        token
-      )
-
-      if (result.success) {
-        toast.success('Prompt optimized!')
-        return result.data.optimized
-      }
-      toast.error(result.error)
-      return null
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Optimization failed'
-      toast.error(msg)
-      return null
-    } finally {
-      setIsOptimizing(false)
-    }
-  }, [isOptimizing])
+    },
+    [isOptimizing]
+  )
 
   // Translate prompt handler
-  const handleTranslate = useCallback(async (prompt: string): Promise<string | null> => {
-    if (!prompt.trim() || isTranslating) return null
+  const handleTranslate = useCallback(
+    async (prompt: string): Promise<string | null> => {
+      if (!prompt.trim() || isTranslating) return null
 
-    setIsTranslating(true)
-    try {
-      const result = await translatePrompt(prompt)
+      setIsTranslating(true)
+      try {
+        const result = await translatePrompt(prompt)
 
-      if (result.success) {
-        toast.success('Prompt translated to English!')
-        return result.data.translated
+        if (result.success) {
+          toast.success('Prompt translated to English!')
+          return result.data.translated
+        }
+        toast.error(result.error)
+        return null
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'Translation failed'
+        toast.error(msg)
+        return null
+      } finally {
+        setIsTranslating(false)
       }
-      toast.error(result.error)
-      return null
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Translation failed'
-      toast.error(msg)
-      return null
-    } finally {
-      setIsTranslating(false)
-    }
-  }, [isTranslating])
+    },
+    [isTranslating]
+  )
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge(params, eds)),

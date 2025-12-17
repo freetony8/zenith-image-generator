@@ -31,7 +31,7 @@ export function Header({ children, onSettingsClick, hasToken }: HeaderProps) {
         <h1 className="text-4xl font-bold text-orange-500 drop-shadow-[0_0_10px_rgba(249,115,22,0.5)] tracking-wider">
           {t('header.title')}
         </h1>
-        <p className="text-zinc-500 mt-1 text-sm">AI-Powered Image Generation</p>
+        <p className="text-zinc-500 mt-1 text-sm">{t('header.subtitle')}</p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function Header({ children, onSettingsClick, hasToken }: HeaderProps) {
           className="flex items-center gap-2 px-3 py-1.5 border border-zinc-700 rounded-lg text-zinc-400 hover:text-zinc-200 hover:border-zinc-600 transition-colors"
         >
           <Sparkles className="w-4 h-4" />
-          <span className="text-sm">Flow Mode</span>
+          <span className="text-sm">{t('header.flowMode')}</span>
         </Link>
       </div>
     </div>

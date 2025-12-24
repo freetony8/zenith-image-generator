@@ -21,6 +21,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // ↓↓↓ 新增这一行：强制指向 shared 包的源码目录
+      '@z-image/shared': path.resolve(__dirname, '../../packages/shared/src'),
     },
   },
 })

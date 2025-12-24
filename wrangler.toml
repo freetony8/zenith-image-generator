@@ -1,3 +1,3 @@
 # Cloudflare Pages Configuration
-name = "z-image-web"
+name = 'zenith-image-generator'
 pages_build_output_dir = "apps/web/dist"
